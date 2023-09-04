@@ -17,7 +17,6 @@ driver = webdriver.Chrome(executable_path="C:\\Users\\xfura\\Desktop\\Instagram\
 driver.get("https://www.instagram.com")
 
 #User settings
-
 load_dotenv()
 username = os.getenv("MAIL")
 password = os.getenv("PASSWORD")
