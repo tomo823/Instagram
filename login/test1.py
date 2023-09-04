@@ -1,22 +1,16 @@
-#latest selenium version is 4.11.2
-#using selenium==3.141.0
-#Succeeded to login
-
-import time
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import csv
 import os
 from dotenv import load_dotenv
+ 
+#driver = webdriver.Chrome(ChromeDriverManager().install())
+driver = webdriver.Chrome("Driver\\windows.exe")
+driver.get('https://www.instagram.com')
 
-
-#browser Settings
-driver = webdriver.Chrome(executable_path="C:\\Users\\xfura\\Desktop\\Instagram\\Instagram\\login\\chromedriver.exe")
-#opne instagram
-driver.get("https://www.instagram.com")
-
-#User settings
 
 load_dotenv()
 username = os.getenv("MAIL")
@@ -34,7 +28,7 @@ loginButton.click()
 time.sleep(4)
 
 #move to profile
-profileButton = driver.find_element_by_css_selector(r"a[href='/bizco_careerup/?next=%2F']")
+profileButton = driver.find_element_by_css_selector(r"a[href='/bizco_careerup/']")
 profileButton.click()
 
 time.sleep(1.5)
