@@ -42,27 +42,19 @@ loginButton = driver.find_element_by_css_selector("button[type=submit]")
 time.sleep(0.4)
 loginButton.click()
 
+time.sleep(4)
 
-"""time.sleep(4)
-#Delete pop-up for Notification
-pyautogui.moveTo(839, 240, duration=0.25)
-pyautogui.click()"""
+time.sleep(1)
 
-time.sleep(5)
-"""
-#Delete pop-up for automatic login
-pyautogui.moveTo(1671, 121, duration=0.25)
-pyautogui.click()"""
+#click for searching users
+pyautogui.moveTo(40, 300, duration=0.25)
+pyautogui.click()
 
 time.sleep(0.4)
-
-pyautogui.moveTo(100, 300, duration=0.25)
-pyautogui.click()
 
 pyautogui.write(user_list[0][0])
+pyautogui.moveTo(120, 320, duration=0.25)
 
-pyautogui.move(0, 50, duration=0.25)
 time.sleep(0.4)
 pyautogui.click()
 
-#print(pyautogui.size())
