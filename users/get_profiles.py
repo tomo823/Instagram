@@ -2,14 +2,12 @@ import instaloader, re, csv , os, inspect
 import pandas as pd
  
 # Creating an instance of the Instaloader class
-bot = instaloader.Instaloader()
-#bot.login(user=os.getenv("MAIL"), passwd=os.getenv("PASSWORD"))
-followers = []
-filtered_followers = []
+
 
 def get_filtered_profile(username):
     # Loading a profile from an Instagram handle
     #print(instaloader.instaloader)
+    bot = instaloader.Instaloader()
     profile = instaloader.Profile.from_username(bot.context, username)
     print(type(bot))
     print("Username: ", profile.username)
@@ -41,18 +39,32 @@ def filter(text):
     return evaluation
 
 #extract followers list from csv file into list as followers
-with open("followers.csv", 'r') as f:
-    reader = csv.reader(f)
-    for row in reader:
-        followers.append(row)
+def read_csv():
+    with open("followers.csv", 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            followers.append(row)
 
 
-for follower in followers[0]:
-    profile_text = get_filtered_profile(follower)
-    if filter(profile_text):
-        filtered_followers.append(follower)
+def filter_list(followers):
+    filtered_followers = []
+    for follower in followers:
+        profile_text = get_filtered_profile(follower)
+        if filter(profile_text):
+            filtered_followers.append(follower)
+    return filtered_followers
 
-with open("kumamoto_followers.csv", 'a') as f:
-    writer = csv.writer(f)
-    for follower in filtered_followers:
-        writer.writerow([follower])
+
+
+def write_csv(filtered_followers):
+    with open("kumamoto_followers.csv", 'a') as f:
+        writer = csv.writer(f)
+        for follower in filtered_followers:
+            writer.writerow([follower])
+
+if __name__ == "__main__":
+    followers = []
+    read_csv()
+    filtered_followers = filter_list(followers[0])
+    print(filtered_followers)
+    write_csv(filtered_followers)
