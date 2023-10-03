@@ -16,6 +16,8 @@ if not os.path.exists(userdir_path):
     os.mkdir(userdir_path)
 csv_path = os.path.join(userdir_path,f"{search_name}.csv")
 
+html_list = []
+
 #browser Settings
 driver = webdriver.Chrome(executable_path="C:\\Users\\xfura\\Desktop\\Instagram\\Instagram\\chromedriver.exe")
 #opne instagram
@@ -26,7 +28,6 @@ driver.maximize_window()
 load_dotenv()
 username = os.getenv("MAIL")
 password = os.getenv("PASSWORD")
-
 
 time.sleep(0.4)
 
@@ -63,15 +64,30 @@ time.sleep(1.5)
 pyautogui.moveTo(760, 230)
 pyautogui.click()
 
-time.sleep(2)
+time.sleep(2.5)
 
 #scroll and display all followers
 last_height = driver.execute_script("return document.body.scrollHeight")
-for i in range(40):
+refresher = 0
+while True:
     driver.find_element_by_tag_name('body').click()
     #driver.execute_script("window.scrollTo(0, %d)" % last_top)
     driver.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
     time.sleep(2)
+
+    #delete last html
+    if len(html_list) >= 3:
+        html_list.pop(0)
+        if html_list[0] == html_list[1]:
+            print("Not updated")
+            refresher += 1
+        else:
+            print("updated")
+            refresher = 0
+    
+    if refresher >= 4:
+        break
+    html_list.append(driver.page_source)
 
 
 #get followers list
@@ -80,8 +96,6 @@ followers_list = []
 for followers in follower_list:
     followers_list.append(followers.text)
 
-#as confirmation
-# print(followers_list)
 
 with open(csv_path, "w", newline="") as f:
     writer = csv.writer(f)
