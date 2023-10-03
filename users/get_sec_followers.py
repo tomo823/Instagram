@@ -12,38 +12,34 @@ import pyautogui
 from get_profiles import get_filtered_profile, filter, filter_list
 
 #make a directory and csv file for each user
-search_name = "saya.ka2342"
-userdir_path = os.path.join("..", "users_data", f"{search_name}")
-if not os.path.exists(userdir_path):
-    os.mkdir(userdir_path)
-csv_path = os.path.join(userdir_path, f"{search_name}.csv")
-kumamoto_csv_path = os.path.join(userdir_path, f"{search_name}_kumamoto.csv")
+def make_path(name):
+    userdir_path = os.path.join("..", "users_data", f"{name}")
+    if not os.path.exists(userdir_path):
+        os.mkdir(userdir_path)
+    csv_path = os.path.join(userdir_path, f"{name}.csv")
+    kumamoto_csv_path = os.path.join(userdir_path, f"{name}_kumamoto.csv")
+    return csv_path, kumamoto_csv_path
 
 html_list = []
 followers = []
 filtered_followers = []
 
+
 #browser Settings
 driver = webdriver.Chrome(executable_path="C:\\Users\\xfura\\Desktop\\Instagram\\Instagram\\chromedriver.exe")
-#opne instagram
+#open instagram
 driver.get("https://www.instagram.com")
 driver.maximize_window()
 
-#User settings
-load_dotenv()
-username = os.getenv("MAIL")
-password = os.getenv("PASSWORD")
 
-time.sleep(0.4)
+def login():
+    #Login
+    loginForm = driver.find_element_by_id("loginForm")
+    loginForm.find_element_by_name("username").send_keys(username)
+    loginForm.find_element_by_name("password").send_keys(password)
+    loginButton = driver.find_element_by_css_selector("button[type=submit]")
+    loginButton.click()
 
-#Login
-loginForm = driver.find_element_by_id("loginForm")
-loginForm.find_element_by_name("username").send_keys(username)
-loginForm.find_element_by_name("password").send_keys(password)
-loginButton = driver.find_element_by_css_selector("button[type=submit]")
-loginButton.click()
-
-time.sleep(6)
 
 def move2followers(user):
     #fclick user column
@@ -127,9 +123,27 @@ def write_filtered_csv(list):
 
 
 if __name__ == "__main__":
+    html_list = []
+    followers = []
+    filtered_followers = []
+    search_name = "saya.ka2342"
+
+    csv_path, kumamoto_csv_path = make_path(search_name)
+
+    #User settings
+    load_dotenv()
+    username = os.getenv("MAIL")
+    password = os.getenv("PASSWORD")
+
+    time.sleep(0.4)
+    login()
+    time.sleep(6)
+
     move2followers(search_name)
     scrawl_followers()
+
     followers = get_followers()
     write_csv(followers)
+
     filtered_followers = filter_list(followers)
     write_filtered_csv(filtered_followers)
