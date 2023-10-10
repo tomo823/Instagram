@@ -12,6 +12,7 @@ import pyautogui
 from get_profiles import get_filtered_profile, filter, filter_list
 
 
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -20,50 +21,55 @@ class User:
         self.csv_path, self.kumamoto_csv_path = make_path(name)
         self.html_list = []
 
-    def moveto_followers_list(self):
+
+    def moveto_followers_list(self, user_count):
         #click the user column
         pyautogui.moveTo(30, 300)
         pyautogui.click()
+        time.sleep(1)
 
-        time.sleep(1.5)
+        # if user_count == 2:
+        #     pyautogui.moveTo(620, 560)
+        #     pyautogui.click()
+        #     time.sleep(1.5)
+
+        #     pyautogui.moveTo(30, 300)
+        #     pyautogui.click()
+        #     time.sleep(2.5)         
 
         #move to username form
         pyautogui.moveTo(130, 235)
         pyautogui.click()
-
-        time.sleep(1.5)
+        time.sleep(0.5)
 
         #write username
         pyautogui.write(self.name)
-
-        time.sleep(1.5)
+        time.sleep(1)
 
         #click username
-        pyautogui.moveTo(140, 290)
+        pyautogui.moveTo(170, 290)
         pyautogui.click()
-
         time.sleep(2.5)
 
         #click followers list
         pyautogui.moveTo(760, 230)
         pyautogui.click()
-
         time.sleep(1.5)
 
 
-    def scrawl_followers(self, refresher_th=3):
+    def scrawl_followers(self, refresher_th=1):
         #Initialize refresher
         refresher = 0
         long_html = False
+
         #scroll and display all followers
+        pyautogui.moveTo(822, 586)
         while True:
             if refresher <= refresher_th:
-                driver.find_element_by_tag_name('body').click()
-            driver.find_element_by_tag_name('body').send_keys(Keys.PAGE_DOWN)
+                pyautogui.click()
+            pyautogui.scroll(-1000)
             time.sleep(2)
 
-            #delete last html if it's too long
-            #FIXME: can use another variable to check if it's updated as boolean variable
             if len(html_list) >= 3:
                 long_html = True
             
@@ -76,7 +82,7 @@ class User:
                     print("updated")
                     refresher = 0
             
-            if refresher >= refresher_th + 1:
+            if refresher >= refresher_th:
                 break
             html_list.append(driver.page_source)
 
@@ -121,22 +127,6 @@ class User_list:
         return None
 
 
-#make a directory and csv file for each user
-def make_path(name):
-    userdir_path = os.path.join("..", "users_data", f"{name}")
-    if not os.path.exists(userdir_path):
-        os.mkdir(userdir_path)
-    csv_path = os.path.join(userdir_path, f"{name}.csv")
-    kumamoto_csv_path = os.path.join(userdir_path, f"{name}_kumamoto.csv")
-    return csv_path, kumamoto_csv_path
-
-
-#browser Settings
-driver = webdriver.Chrome(executable_path="C:\\Users\\xfura\\Desktop\\Instagram\\Instagram\\chromedriver.exe")
-#open instagram
-driver.get("https://www.instagram.com")
-driver.maximize_window()
-
 
 def login():
     #Login
@@ -145,6 +135,16 @@ def login():
     loginForm.find_element_by_name("password").send_keys(password)
     loginButton = driver.find_element_by_css_selector("button[type=submit]")
     loginButton.click()
+
+
+#make a directory and csv file for each user
+def make_path(name):
+    userdir_path = os.path.join("..", "users_data", f"{name}")
+    if not os.path.exists(userdir_path):
+        os.mkdir(userdir_path)
+    csv_path = os.path.join(userdir_path, f"{name}.csv")
+    kumamoto_csv_path = os.path.join(userdir_path, f"{name}_kumamoto.csv")
+    return csv_path, kumamoto_csv_path
 
 
 def move2followers(user):
@@ -178,24 +178,30 @@ def move2followers(user):
     time.sleep(1.5)
 
 
-# def write_csv(list):
-#     with open(csv_path, "w", newline="") as f:
-#         writer = csv.writer(f)
-#         writer.writerow(list)
-
-
-# def write_filtered_csv(list):
-#     with open(kumamoto_csv_path, "w", newline="") as f:
-#         writer = csv.writer(f)
-#         for follower in list:
-#             writer.writerow([follower])
-
-
 if __name__ == "__main__":
+    #browser Settings
+    driver = webdriver.Chrome(executable_path="C:\\Users\\xfura\\Desktop\\Instagram\\Instagram\\chromedriver.exe")
+    #open instagram
+    driver.get("https://www.instagram.com")
+    driver.maximize_window()
+
     html_list = []
+    user_count = 0
+
+    #Initialize names for search
+    search_names = []
+    search_names_path = os.path.join("..", "users_data", "kumamoto_followers.csv")
+    with open(search_names_path, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            search_names.append(row)
+
+    #Initialize user_list
     user_list = User_list()
-    search_name = ["saya.ka2342"]
-    for name in search_name:
+    
+    length_list= len(search_names[0])
+    for name in search_names[0]:
+        #Initialize user, creating directory and csv file
         user = User(name)
         user_list.append(user)
 
@@ -209,18 +215,20 @@ if __name__ == "__main__":
     time.sleep(6)
 
     for user in user_list.user_list:
-        user.moveto_followers_list()
+        user.moveto_followers_list(user_count)
         user.scrawl_followers()
         user.followers = user.get_followers()
         user.write_csv(user.followers)
-        user.filtered_followers = filter_list(user.followers)
+        try:
+            user.filtered_followers = filter_list(user.followers)
+        except:
+            driver.close()
+            break
         user.write_filtered_csv(user.filtered_followers)
+        if length_list > 1:
+            pyautogui.moveTo(805, 235)
+            pyautogui.click()
 
-    # move2followers(search_name)
-    # scrawl_followers()
-
-    # followers = get_followers()
-    # write_csv(followers)
-
-    # filtered_followers = filter_list(followers)
-    # write_filtered_csv(filtered_followers)
+        user_count += 1
+    
+    driver.close()
