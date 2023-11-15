@@ -2,23 +2,25 @@
 #using selenium==3.141.0
 #Succeeded to login
 
-import time, csv, os, pathlib, sys
+import time, csv, os, sys
+import pyautogui
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from dotenv import load_dotenv
-import pyautogui
+from pathlib import Path
 
-current_dir = pathlib.Path(__file__).resolve().parent
-parent_path = current_dir.parent
-sys.path.append(os.path.join(parent_path, "users"))
+parent_dir = Path(__file__).resolve().parent
+second_parent_dir = parent_dir.parent
+sys.path.append(os.path.join(second_parent_dir, "users"))
+
 from get_profiles import get_filtered_profile, filter, filter_list
 
 csv_path = os.path.join("..", "users_data", "followers.csv")
 kumamoto_csv_path = os.path.join("..", "users_data", "kumamoto_followers.csv")
 
 #browser Settings
-driver = webdriver.Chrome(executable_path="C:\\Users\\xfura\\Desktop\\Instagram\\Instagram\\chromedriver.exe")
+driver = webdriver.Chrome()
 #opne instagram
 driver.get("https://www.instagram.com")
 
@@ -33,30 +35,27 @@ password = os.getenv("PASSWORD")
 time.sleep(0.4)
 
 #Login
-loginForm = driver.find_element_by_id("loginForm")
-loginForm.find_element_by_name("username").send_keys(username)
-loginForm.find_element_by_name("password").send_keys(password)
-loginButton = driver.find_element_by_css_selector("button[type=submit]")
-loginButton.click()
+loginForm = driver.find_element(By.ID, "loginForm")
+loginForm.find_element(By.NAME, "username").send_keys(username)
+loginForm.find_element(By.NAME, "password").send_keys(password)
+loginButton = driver.find_elements(By.TAG_NAME, "button")
+loginButton[1].click()
 
-time.sleep(4)
+time.sleep(8)
 
 #move to profile
-profileButton = driver.find_element_by_css_selector(r"a[href='/bizco_careerup/?next=%2F']")
+profileButton = driver.find_element(By.CSS_SELECTOR, r"a[href='/bizco_careerup/?next=%2F']")
 profileButton.click()
 
-time.sleep(1.5)
+time.sleep(5)
 
 #move to followers
-# followersButton = driver.find_element_by_css_selector(r"a[href='/bizco_careerup/followers/?next=%2F']")
-# followersButton.click()
-pyautogui.moveTo(760, 230)
+pyautogui.moveTo(760, 210)
 pyautogui.click()
 
 time.sleep(1.5)
 
-#scroll and display all followers
-#last_height = driver.execute_script("return document.body.scrollHeight")
+#scroll to display all followers
 pyautogui.moveTo(822, 586)
 pyautogui.click()
 refresher = 0
@@ -85,21 +84,23 @@ while True:
         break
     html_list.append(driver.page_source)
 
+time.sleep(1.5)
 
 #get followers list
-follower_list = driver.find_elements(By.CSS_SELECTOR, "._aacl._aaco._aacw._aacx._aad7._aade")
+follower_list = driver.find_elements(By.CSS_SELECTOR, "._ap3a._aaco._aacw._aacx._aad7._aade")
 followers_list = []
 for followers in follower_list:
     followers_list.append(followers.text)
 
 #as confirmation
-print(followers_list)
-
-kumamoto_followers_list = filter_list(followers_list)
+# print(followers_list)
 
 with open(csv_path, "w", newline="") as f:
     writer = csv.writer(f)
     writer.writerow(followers_list)
+
+#Filter the list
+kumamoto_followers_list = filter_list(followers_list)
 
 with open(kumamoto_csv_path, "w", newline="") as f:
     writer = csv.writer(f)
