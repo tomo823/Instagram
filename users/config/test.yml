@@ -1,0 +1,5 @@
+name: "kuwifi-1x"
+address: "172.29.191.30"
+netmask: "255.255.192.0"
+gateway: "172.29.191.254"
+metric: "0"
